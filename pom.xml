@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.onap.so</groupId>
     <artifactId>adapters</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
   </parent>
   <groupId>org.onap.so.adapters</groupId>
-  <artifactId>so-vfc-adapter</artifactId>
-  <name>so-vfc-adapter</name>
-  <description>Web service endpoint for vfc operations</description>
+  <artifactId>so-etsi-sol005-adapter</artifactId>
+  <name>so-etsi-sol005-adapter</name>
+  <description>Web service endpoint for etsi-sol005 operations</description>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -105,6 +105,35 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <id>docker-build</id>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <dockerFile>Dockerfile.so-cnf-adapter</dockerFile>
+              <executable>docker</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>build</argument>
+                <argument>-t</argument>
+                <argument>onap/so/${project.artifactId}:${project.version}</argument>
+                <argument>.</argument>
+              </arguments>
+              <buildArgs>
+                <JAR_FILE>${project.artifactId}-${project.version}.jar</JAR_FILE>
+                <ARTIFACT_ID>${project.artifactId}</ARTIFACT_ID>
+              </buildArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -171,6 +200,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
   </dependencies>
 </project>
