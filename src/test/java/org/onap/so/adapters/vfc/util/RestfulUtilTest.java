@@ -42,6 +42,8 @@ import org.springframework.http.HttpStatus;
 import javax.ws.rs.HttpMethod;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -98,6 +100,13 @@ public class RestfulUtilTest {
         assertEquals(HttpStatus.OK.value(), restfulResponse.getStatus());
         assertEquals("GET", restfulResponse.getResponseContent());
 
+        Map<String, String> requestHeader = new HashMap<>();
+        requestHeader.put("a", "b");
+        RestfulResponse restfulResponse1 =
+                restfulUtil.send("test", HttpMethod.GET, "some request content", requestHeader);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse1.getStatus());
+
     }
 
     @Test
@@ -115,6 +124,13 @@ public class RestfulUtilTest {
         assertEquals(HttpStatus.OK.value(), restfulResponse.getStatus());
         assertEquals("POST", restfulResponse.getResponseContent());
 
+        Map<String, String> requestHeader = new HashMap<>();
+        requestHeader.put("a", "b");
+        RestfulResponse restfulResponse1 =
+                restfulUtil.send("test", HttpMethod.POST, "some request content", requestHeader);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse1.getStatus());
+
     }
 
     @Test
@@ -130,6 +146,13 @@ public class RestfulUtilTest {
 
         assertEquals(HttpStatus.OK.value(), restfulResponse.getStatus());
         assertEquals("PUT", restfulResponse.getResponseContent());
+
+        Map<String, String> requestHeader = new HashMap<>();
+        requestHeader.put("a", "b");
+        RestfulResponse restfulResponse1 =
+                restfulUtil.send("test", HttpMethod.PUT, "some request content", requestHeader);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse1.getStatus());
 
     }
 
@@ -147,6 +170,13 @@ public class RestfulUtilTest {
         assertEquals(HttpStatus.OK.value(), restfulResponse.getStatus());
         assertEquals("DELETE", restfulResponse.getResponseContent());
 
+        Map<String, String> requestHeader = new HashMap<>();
+        requestHeader.put("a", "b");
+        RestfulResponse restfulResponse1 =
+                restfulUtil.send("test", HttpMethod.DELETE, "some request content", requestHeader);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse1.getStatus());
+
     }
 
     @Test
@@ -159,6 +189,21 @@ public class RestfulUtilTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse.getStatus());
         assertEquals("Error processing request to VFC", restfulResponse.getResponseContent());
 
+        Map<String, String> requestHeader = new HashMap<>();
+        requestHeader.put("a", "b");
+        RestfulResponse restfulResponse1 =
+                restfulUtil.send("test", HttpMethod.OPTIONS, "some request content", requestHeader);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse1.getStatus());
     }
 
+    @Test
+    public void getNfvoFromAAITest() throws Exception {
+
+        doReturn("https://testHost/").when(restfulUtil).getMsbHost();
+
+        RestfulResponse restfulResponse = restfulUtil.getNfvoFromAAI("test");
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse.getStatus());
+    }
 }

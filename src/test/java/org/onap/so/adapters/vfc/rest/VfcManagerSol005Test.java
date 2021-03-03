@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.so.adapters.vfc.exceptions.ApplicationException;
 import org.onap.so.adapters.vfc.model.NSResourceInputParameter;
+import org.onap.so.adapters.vfc.model.NsOperationKey;
 import org.onap.so.adapters.vfc.model.RestfulResponse;
 import org.onap.so.adapters.vfc.util.JsonUtil;
 import org.onap.so.adapters.vfc.util.RestfulUtil;
@@ -61,6 +62,7 @@ public class VfcManagerSol005Test {
     RestfulResponse vfcrestfulResponse = new RestfulResponse();
     NSResourceInputParameter nsResourceInputParameter = new NSResourceInputParameter();
     ResourceOperationStatus resourceOperationStatus = new ResourceOperationStatus();
+    NsOperationKey nsOperationKey = new NsOperationKey();
 
     @Test
     public void createNs() throws ApplicationException, Exception {
@@ -216,6 +218,39 @@ public class VfcManagerSol005Test {
         when(resourceOperationStatusRepository.save(resourceOperationStatus)).thenReturn(resourceOperationStatus);
         when(instanceNfvoMappingRepository.save(instanceNfvoMapping)).thenReturn(instanceNfvoMapping);
         vfcManagerSol005.instantiateNs(nsInstanceId, nsResourceInputParameter);
+
+    }
+
+    @Test
+    public void deleteNs() throws Exception {
+        String nsInstanceId = "c9f0a95e-dea0-4698-96e5-5a79bc5a233d";
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        File file = new File(classLoader.getResource("json/createNsReq.json").getFile());
+        String content = new String(Files.readAllBytes(file.toPath())).replace("\n", "");
+        nsResourceInputParameter = JsonUtil.unMarshal(content, NSResourceInputParameter.class);
+        instanceNfvoMapping.setInstanceId("b1bb0ce7-2222-4fa7-95ed-4840d70a1101");
+        instanceNfvoMapping.setPassword("sacjnasnc");
+        instanceNfvoMapping.setUsername("admin");
+        instanceNfvoMapping.setNfvoName("external_nfvo");
+        instanceNfvoMapping.setEndpoint("http://sample.com/");
+        instanceNfvoMapping.setApiRoot("xyz");
+        nsOperationKey.setServiceId("1");
+        resourceOperationStatus.setStatus("processing");
+        resourceOperationStatus.setOperationId(nsResourceInputParameter.getNsOperationKey().getOperationId());
+        resourceOperationStatus.setServiceId(nsResourceInputParameter.getNsOperationKey().getServiceId());
+        resourceOperationStatus
+                .setResourceTemplateUUID(nsResourceInputParameter.getNsOperationKey().getNodeTemplateUUID());
+        Map<String, String> header = new HashMap<>();
+        header.put("Location", "http://192.168.10.57:5000/ns_lcm_op_ops/12204a12-7da2-4ddf-8c2f-992a1a1acebf");
+        vfcrestfulResponse.setStatus(202);
+        vfcrestfulResponse.setResponseContent(null);
+        vfcrestfulResponse.setRespHeaderMap(header);
+        when(instanceNfvoMappingRepository.findOneByInstanceId(nsInstanceId)).thenReturn(instanceNfvoMapping);
+        when(restfulUtil.send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(vfcrestfulResponse);
+        when(resourceOperationStatusRepository.save(resourceOperationStatus)).thenReturn(resourceOperationStatus);
+        when(instanceNfvoMappingRepository.save(instanceNfvoMapping)).thenReturn(instanceNfvoMapping);
+        vfcManagerSol005.deleteNs(nsOperationKey, nsInstanceId);
 
     }
 }
