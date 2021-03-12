@@ -6,10 +6,10 @@
         <artifactId>so</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.onap.so.adapters.so-sol005-adapter</groupId>
-    <artifactId>so-sol005-adapter</artifactId>
+    <groupId>org.onap.so.adapters.so-etsi-sol005-adapter</groupId>
+    <artifactId>so-etsi-sol005-adapter</artifactId>
     <version>1.8.0-SNAPSHOT</version>
-    <name>SO SOL005 Adapter</name>
+    <name>SO ETSI SOL005 Adapter</name>
     <packaging>pom</packaging>
     
     <properties>

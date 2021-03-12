@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.onap.so.adapters.so-sol005-adapter</groupId>
-        <artifactId>so-sol005-adapter</artifactId>
+        <groupId>org.onap.so.adapters.so-etsi-sol005-adapter</groupId>
+        <artifactId>so-etsi-sol005-adapter</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
     <artifactId>packages</artifactId>
     <packaging>pom</packaging>
     <version>1.8.0-SNAPSHOT</version>
-    <name>SO SOL005 Adapter Packages</name>
+    <name>SO ETSI SOL005 Adapter Packages</name>
 
     <profiles>
         <!-- DO NOT CHANGE THE *ORDER* IN WHICH THESE PROFILES ARE DEFINED! -->
