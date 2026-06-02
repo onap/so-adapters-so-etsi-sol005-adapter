@@ -156,13 +156,12 @@ public class RestfulUtil {
             httpResponse = client.execute(method);
             Map<String, String> responseHeader = new HashMap<>();
             String responseContent = null;
+            Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
+            for (Header header : httpResponseAllHeaders) {
+                responseHeader.put(header.getName(), header.getValue());
+            }
             if (httpResponse.getEntity() != null) {
                 responseContent = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
-                Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
-                for (Header header : httpResponseAllHeaders) {
-                    responseHeader.put(header.getName(), header.getValue());
-
-                }
             }
 
             int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -264,13 +263,12 @@ public class RestfulUtil {
             httpResponse = client.execute(method);
             Map<String, String> responseHeader = new HashMap<>();
             String responseContent = null;
+            Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
+            for (Header header : httpResponseAllHeaders) {
+                responseHeader.put(header.getName(), header.getValue());
+            }
             if (httpResponse.getEntity() != null) {
                 responseContent = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
-                Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
-                for (Header header : httpResponseAllHeaders) {
-                    responseHeader.put(header.getName(), header.getValue());
-
-                }
             }
 
             int statusCode = httpResponse.getStatusLine().getStatusCode();

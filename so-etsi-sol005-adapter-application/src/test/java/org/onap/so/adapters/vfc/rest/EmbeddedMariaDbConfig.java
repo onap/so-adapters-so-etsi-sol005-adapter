@@ -39,6 +39,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @Profile({"test"})
@@ -72,9 +74,12 @@ public class EmbeddedMariaDbConfig {
     @Primary
     @Bean(name = "requestEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
-            @Qualifier("requestDataSource") DataSource dataSource) {
+            @Qualifier("requestDataSource") DataSource dataSource,
+            @Value("${test.hibernate.ddl-auto:none}") String ddlAuto) {
+        Map<String, String> jpaProperties = new HashMap<>();
+        jpaProperties.put("hibernate.hbm2ddl.auto", ddlAuto);
         return builder.dataSource(dataSource).packages("org.onap.so.db.request.beans").persistenceUnit("requestDB")
-                .build();
+                .properties(jpaProperties).build();
     }
 
     @Primary
