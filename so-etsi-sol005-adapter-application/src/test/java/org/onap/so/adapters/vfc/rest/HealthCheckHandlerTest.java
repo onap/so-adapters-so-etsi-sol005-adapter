@@ -62,6 +62,6 @@ public class HealthCheckHandlerTest {
     }
 
     private String createURLWithPort(String uri) {
-        return "http://localhost:" + port + uri;
+        return "http://localhost:" + port + "/" + uri;
     }
 }

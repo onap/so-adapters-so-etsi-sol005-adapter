@@ -58,7 +58,7 @@ management:
 
 
 flyway:
-  baseline-on-migrate: false
+  baseline-on-migrate: true
   url: jdbc:mariadb://localhost:3307/requestdb
   user: root
   password: password
