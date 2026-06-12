@@ -1,0 +1,9 @@
+---
+distribution_type: 'container'
+container_release_tag: '1.11.0'
+project: 'so'
+log_dir: 'so-adapters-so-etsi-sol005-adapter-maven-docker-stage-master/794/'
+ref: 'eb7800e6f1fde6a9c79a6af5505232f36a902359'
+containers:
+    - name: 'so/so-etsi-sol005-adapter'
+      version: '1.11.0-20260603T1250'
