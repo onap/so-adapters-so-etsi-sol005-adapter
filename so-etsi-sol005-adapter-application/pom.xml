@@ -95,12 +95,12 @@
     <dependency>
       <groupId>org.onap.so</groupId>
       <artifactId>mso-requests-db</artifactId>
-      <version>1.19.1-SNAPSHOT</version>
+      <version>1.19.1</version>
     </dependency>
     <dependency>
       <groupId>org.onap.so</groupId>
       <artifactId>mso-requests-db-repositories</artifactId>
-      <version>1.19.1-SNAPSHOT</version>
+      <version>1.19.1</version>
     </dependency>
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
