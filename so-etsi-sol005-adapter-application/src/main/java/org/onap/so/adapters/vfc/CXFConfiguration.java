@@ -21,11 +21,12 @@
 package org.onap.so.adapters.vfc;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.onap.so.adapters.vfc.rest.VfcAdapterRest;
 import org.onap.so.logging.jaxrs.filter.SOAuditLogContainerFilter;
@@ -34,7 +35,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 
 @Configuration
@@ -69,16 +70,16 @@ public class CXFConfiguration {
     }
 
     @Bean
-    public Swagger2Feature createSwaggerFeature() {
-        Swagger2Feature swagger2Feature = new Swagger2Feature();
-        swagger2Feature.setPrettyPrint(true);
-        swagger2Feature.setTitle("SO VFC Adapter");
-        swagger2Feature.setContact("The ONAP SO team");
-        swagger2Feature.setDescription("This project is the SO Orchestration Engine");
-        swagger2Feature.setVersion("1.0.0");
-        swagger2Feature.setResourcePackage("org.onap.so.adapters.vfc.rest");
-        swagger2Feature.setScan(true);
-        return swagger2Feature;
+    public OpenApiFeature createSwaggerFeature() {
+        OpenApiFeature openApiFeature = new OpenApiFeature();
+        openApiFeature.setPrettyPrint(true);
+        openApiFeature.setTitle("SO VFC Adapter");
+        openApiFeature.setContactName("The ONAP SO team");
+        openApiFeature.setDescription("This project is the SO Orchestration Engine");
+        openApiFeature.setVersion("1.0.0");
+        openApiFeature.setResourcePackages(new HashSet<String>(Arrays.asList("org.onap.so.adapters.vfc.rest")));
+        openApiFeature.setScan(true);
+        return openApiFeature;
     }
 
 }

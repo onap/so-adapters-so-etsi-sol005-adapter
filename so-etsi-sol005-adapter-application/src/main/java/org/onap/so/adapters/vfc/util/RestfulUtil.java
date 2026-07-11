@@ -29,22 +29,22 @@ import java.net.SocketTimeoutException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import org.onap.so.logger.LoggingAnchor;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.onap.so.adapters.vfc.model.RestfulResponse;
 import org.onap.logging.filter.base.ErrorCode;
 import org.onap.so.logger.MessageEnum;
@@ -111,14 +111,16 @@ public class RestfulUtil {
         // String msbUrl = getMsbHost() + url;
         logger.debug("Begin to sent message " + methodType + ": " + msbUrl);
 
-        HttpRequestBase method = null;
-        HttpResponse httpResponse = null;
+        HttpUriRequestBase method = null;
+        ClassicHttpResponse httpResponse = null;
 
         try {
             int timeout = DEFAULT_TIME_OUT;
 
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout)
-                    .setConnectionRequestTimeout(timeout).build();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setResponseTimeout(Timeout.ofMilliseconds(timeout))
+                    .setConnectTimeout(Timeout.ofMilliseconds(timeout))
+                    .setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout)).build();
 
             HttpClient client = HttpClientBuilder.create().build();
 
@@ -153,10 +155,10 @@ public class RestfulUtil {
             // DatatypeConverter.printBase64Binary(userCredentials.getBytes());
             // method.setHeader("Authorization", authorization);
 
-            httpResponse = client.execute(method);
+            httpResponse = (ClassicHttpResponse) client.execute(method);
             Map<String, String> responseHeader = new HashMap<>();
             String responseContent = null;
-            Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
+            Header[] httpResponseAllHeaders = httpResponse.getHeaders();
             for (Header header : httpResponseAllHeaders) {
                 responseHeader.put(header.getName(), header.getValue());
             }
@@ -164,13 +166,13 @@ public class RestfulUtil {
                 responseContent = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
             }
 
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            String statusMessage = httpResponse.getStatusLine().getReasonPhrase();
+            int statusCode = httpResponse.getCode();
+            String statusMessage = httpResponse.getReasonPhrase();
 
             logger.debug("VFC Response: {} {}", statusCode,
                     statusMessage + (responseContent == null ? "" : System.lineSeparator() + responseContent));
 
-            if (httpResponse.getStatusLine().getStatusCode() >= 300) {
+            if (statusCode >= 300) {
                 String errMsg = "VFC returned " + statusCode + " " + statusMessage;
                 logError(errMsg);
                 return createResponse(statusCode, errMsg);
@@ -187,7 +189,7 @@ public class RestfulUtil {
             method = null;
             return createResponse(statusCode, responseContent, responseHeader);
 
-        } catch (SocketTimeoutException | ConnectTimeoutException e) {
+        } catch (SocketTimeoutException e) {
             String errMsg = "Request to VFC timed out";
             logError(errMsg, e);
             return createResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT, errMsg);
@@ -223,14 +225,16 @@ public class RestfulUtil {
         // String msbUrl = getMsbHost() + url;
         logger.debug("Begin to sent message " + methodType + ": " + msbUrl);
 
-        HttpRequestBase method = null;
-        HttpResponse httpResponse = null;
+        HttpUriRequestBase method = null;
+        ClassicHttpResponse httpResponse = null;
 
         try {
             int timeout = DEFAULT_TIME_OUT;
 
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout)
-                    .setConnectionRequestTimeout(timeout).build();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setResponseTimeout(Timeout.ofMilliseconds(timeout))
+                    .setConnectTimeout(Timeout.ofMilliseconds(timeout))
+                    .setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout)).build();
 
             if ("POST".equalsIgnoreCase(methodType)) {
                 HttpPost httpPost = new HttpPost(msbUrl);
@@ -260,10 +264,10 @@ public class RestfulUtil {
             // DatatypeConverter.printBase64Binary(userCredentials.getBytes());
             // method.setHeader("Authorization", authorization);
 
-            httpResponse = client.execute(method);
+            httpResponse = (ClassicHttpResponse) client.execute(method);
             Map<String, String> responseHeader = new HashMap<>();
             String responseContent = null;
-            Header[] httpResponseAllHeaders = httpResponse.getAllHeaders();
+            Header[] httpResponseAllHeaders = httpResponse.getHeaders();
             for (Header header : httpResponseAllHeaders) {
                 responseHeader.put(header.getName(), header.getValue());
             }
@@ -271,13 +275,13 @@ public class RestfulUtil {
                 responseContent = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
             }
 
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            String statusMessage = httpResponse.getStatusLine().getReasonPhrase();
+            int statusCode = httpResponse.getCode();
+            String statusMessage = httpResponse.getReasonPhrase();
 
             logger.debug("VFC Response: " + statusCode + " " + statusMessage
                     + (responseContent == null ? "" : System.lineSeparator() + responseContent));
 
-            if (httpResponse.getStatusLine().getStatusCode() >= 300) {
+            if (statusCode >= 300) {
                 String errMsg = "VFC returned " + statusCode + " " + statusMessage;
                 logError(errMsg);
                 return createResponse(statusCode, errMsg);
@@ -294,7 +298,7 @@ public class RestfulUtil {
             method = null;
             return createResponse(statusCode, responseContent, responseHeader);
 
-        } catch (SocketTimeoutException | ConnectTimeoutException e) {
+        } catch (SocketTimeoutException e) {
             String errMsg = "Request to VFC timed out";
             logError(errMsg, e);
             return createResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT, errMsg);
@@ -324,12 +328,14 @@ public class RestfulUtil {
     }
 
     public RestfulResponse getNfvoFromAAI(String nfvo) {
-        HttpRequestBase method = null;
-        HttpResponse httpResponse = null;
+        HttpUriRequestBase method = null;
+        ClassicHttpResponse httpResponse = null;
         String endPoint = getMsbHost() + "/api/aai-esr-server/v1/nfvos/" + nfvo;
         logger.info("Endpoint URL" + endPoint);
-        RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(DEFAULT_TIME_OUT)
-                .setConnectTimeout(DEFAULT_TIME_OUT).setConnectionRequestTimeout(DEFAULT_TIME_OUT).build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setResponseTimeout(Timeout.ofMilliseconds(DEFAULT_TIME_OUT))
+                .setConnectTimeout(Timeout.ofMilliseconds(DEFAULT_TIME_OUT))
+                .setConnectionRequestTimeout(Timeout.ofMilliseconds(DEFAULT_TIME_OUT)).build();
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet(endPoint);
         httpGet.setConfig(requestConfig);
@@ -339,18 +345,18 @@ public class RestfulUtil {
         String responseContent = null;
         Map<String, String> responseHeader = null;
         try {
-            httpResponse = client.execute(method);
+            httpResponse = (ClassicHttpResponse) client.execute(method);
             if (httpResponse.getEntity() != null) {
                 responseContent = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
             }
 
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            String statusMessage = httpResponse.getStatusLine().getReasonPhrase();
+            int statusCode = httpResponse.getCode();
+            String statusMessage = httpResponse.getReasonPhrase();
 
             logger.debug("AAI Response: " + statusCode + " " + statusMessage
                     + (responseContent == null ? "" : System.lineSeparator() + responseContent));
 
-            if (httpResponse.getStatusLine().getStatusCode() >= 300) {
+            if (statusCode >= 300) {
                 String errMsg = "AAI returned " + statusCode + " " + statusMessage;
                 logError(errMsg);
                 return createResponse(statusCode, errMsg);

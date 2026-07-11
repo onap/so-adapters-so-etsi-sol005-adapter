@@ -20,7 +20,6 @@
 
 package org.onap.so.adapters.vfc.rest;
 
-import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import ch.vorburger.mariadb4j.springframework.MariaDB4jSpringService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,7 +36,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,11 +60,19 @@ public class EmbeddedMariaDbConfig {
             @Value("${mariaDB4j.databaseName}") String databaseName,
             @Value("${spring.datasource.username}") String datasourceUsername,
             @Value("${spring.datasource.password}") String datasourcePassword,
-            @Value("${spring.datasource.driver-class-name}") String datasourceDriver) throws ManagedProcessException {
-        // Create our database with default root user and no password
-        mariaDB4jSpringService.getDB().createDB(databaseName);
+            @Value("${spring.datasource.driver-class-name}") String datasourceDriver) throws Exception {
+        if (!mariaDB4jSpringService.isRunning()) {
+            mariaDB4jSpringService.start();
+        }
 
         DBConfigurationBuilder config = mariaDB4jSpringService.getConfiguration();
+
+        // Create database via JDBC to avoid dependency on the mariadb CLI client binary
+        try (java.sql.Connection conn =
+                java.sql.DriverManager.getConnection(config.getURL(""), datasourceUsername, datasourcePassword);
+                java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("CREATE DATABASE IF NOT EXISTS `" + databaseName + "`");
+        }
 
         return DataSourceBuilder.create().username(datasourceUsername).password(datasourcePassword)
                 .url(config.getURL(databaseName)).driverClassName(datasourceDriver).build();

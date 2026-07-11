@@ -20,16 +20,15 @@
 
 package org.onap.so.adapters.vfc.util;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,15 +38,12 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.onap.so.adapters.vfc.model.RestfulResponse;
 import org.springframework.http.HttpStatus;
-import javax.ws.rs.HttpMethod;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import jakarta.ws.rs.HttpMethod;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,40 +56,23 @@ public class RestfulUtilTest {
     @Mock
     private HttpClient client;
 
-    private HttpEntity httpEntity;
-    private HttpResponse httpResponse;
-    private StatusLine statusLine;
-    private Header httpResponseHeader;
-
     @Before
     public void setUp() {
-        httpEntity = mock(HttpEntity.class);
-        httpResponse = mock(HttpResponse.class);
-        statusLine = mock(StatusLine.class);
-        httpResponseHeader = mock(Header.class);
+        doReturn("https://testHost").when(restfulUtil).getMsbHost();
     }
 
-    private void sendInit() throws IOException {
-
-        Header[] headerList = new BasicHeader[2];
-        headerList[0] = new BasicHeader("Content-Type", "application/json");
-        headerList[1] = new BasicHeader("cache-control", "no-cache");
-        doReturn("https://testHost/").when(restfulUtil).getMsbHost();
-
-        when(statusLine.getStatusCode()).thenReturn(HttpStatus.OK.value());
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-        when(httpResponse.getEntity()).thenReturn(httpEntity);
-        when(httpResponse.getAllHeaders()).thenReturn(headerList);
+    private ClassicHttpResponse buildResponse(String body) {
+        BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.OK.value());
+        response.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+        response.setHeader("Content-Type", "application/json");
+        response.setHeader("cache-control", "no-cache");
+        return response;
     }
 
     @Test
     public void sendGet() throws Exception {
 
-        sendInit();
-
-        ByteArrayInputStream responseStream = new ByteArrayInputStream(new String("GET").getBytes());
-        when(client.execute(any(HttpGet.class))).thenReturn(httpResponse);
-        when(httpEntity.getContent()).thenReturn(responseStream);
+        when(client.execute(any(HttpGet.class))).thenReturn(buildResponse("GET"));
 
         RestfulResponse restfulResponse = restfulUtil.send("test", HttpMethod.GET, "some request content");
 
@@ -112,12 +91,7 @@ public class RestfulUtilTest {
     @Test
     public void sendPost() throws Exception {
 
-        sendInit();
-
-
-        ByteArrayInputStream responseStream = new ByteArrayInputStream(new String("POST").getBytes());
-        when(client.execute(any(HttpPost.class))).thenReturn(httpResponse);
-        when(httpEntity.getContent()).thenReturn(responseStream);
+        when(client.execute(any(HttpPost.class))).thenReturn(buildResponse("POST"));
 
         RestfulResponse restfulResponse = restfulUtil.send("test", HttpMethod.POST, "some request content");
 
@@ -136,11 +110,7 @@ public class RestfulUtilTest {
     @Test
     public void sendPut() throws Exception {
 
-        sendInit();
-
-        ByteArrayInputStream responseStream = new ByteArrayInputStream(new String("PUT").getBytes());
-        when(client.execute(any(HttpPut.class))).thenReturn(httpResponse);
-        when(httpEntity.getContent()).thenReturn(responseStream);
+        when(client.execute(any(HttpPut.class))).thenReturn(buildResponse("PUT"));
 
         RestfulResponse restfulResponse = restfulUtil.send("test", HttpMethod.PUT, "some request content");
 
@@ -159,11 +129,7 @@ public class RestfulUtilTest {
     @Test
     public void sendDelete() throws Exception {
 
-        sendInit();
-
-        ByteArrayInputStream responseStream = new ByteArrayInputStream(new String("DELETE").getBytes());
-        when(client.execute(any(HttpDelete.class))).thenReturn(httpResponse);
-        when(httpEntity.getContent()).thenReturn(responseStream);
+        when(client.execute(any(HttpDelete.class))).thenReturn(buildResponse("DELETE"));
 
         RestfulResponse restfulResponse = restfulUtil.send("test", HttpMethod.DELETE, "some request content");
 
@@ -182,8 +148,6 @@ public class RestfulUtilTest {
     @Test
     public void sendOptions() throws Exception {
 
-        doReturn("https://testHost/").when(restfulUtil).getMsbHost();
-
         RestfulResponse restfulResponse = restfulUtil.send("test", HttpMethod.OPTIONS, "some request content");
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), restfulResponse.getStatus());
@@ -199,8 +163,6 @@ public class RestfulUtilTest {
 
     @Test
     public void getNfvoFromAAITest() throws Exception {
-
-        doReturn("https://testHost/").when(restfulUtil).getMsbHost();
 
         RestfulResponse restfulResponse = restfulUtil.getNfvoFromAAI("test");
 
