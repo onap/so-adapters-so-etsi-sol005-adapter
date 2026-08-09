@@ -11,8 +11,13 @@ mso:
 spring:
   datasource:
     jdbc-url: jdbc:mariadb://${DB_HOST}:${DB_PORT}/requestdb
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    # username: ${DB_USERNAME}
+    # password: ${DB_PASSWORD}
+
+    #Updated requestdb username and password.
+    username: requestuser
+    password: request123
+
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
       show-sql: false
