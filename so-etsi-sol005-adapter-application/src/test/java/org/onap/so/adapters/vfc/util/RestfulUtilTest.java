@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.onap.so.adapters.vfc.model.RestfulResponse;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import jakarta.ws.rs.HttpMethod;
 import java.util.HashMap;
@@ -55,6 +56,9 @@ public class RestfulUtilTest {
 
     @Mock
     private HttpClient client;
+
+    @Mock
+    private Environment env;
 
     @Before
     public void setUp() {

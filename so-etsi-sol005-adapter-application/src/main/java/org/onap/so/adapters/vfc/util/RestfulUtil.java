@@ -26,7 +26,6 @@ package org.onap.so.adapters.vfc.util;
 
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import jakarta.ws.rs.core.UriBuilder;
@@ -48,6 +47,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.onap.so.adapters.vfc.model.RestfulResponse;
 import org.onap.logging.filter.base.ErrorCode;
 import org.onap.so.logger.MessageEnum;
+import org.onap.so.utils.BasicAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,8 +339,11 @@ public class RestfulUtil {
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet(endPoint);
         httpGet.setConfig(requestConfig);
-        String encoding = Base64.getEncoder().encodeToString(("AAI:AAI").getBytes());
-        httpGet.setHeader("Authorization", "Basic " + encoding);
+        String auth = BasicAuth.header(env.getProperty(BasicAuth.AAI_USERNAME_PROPERTY),
+                env.getProperty(BasicAuth.AAI_PASSWORD_PROPERTY));
+        if (auth != null) {
+            httpGet.setHeader("Authorization", auth);
+        }
         method = httpGet;
         String responseContent = null;
         Map<String, String> responseHeader = null;

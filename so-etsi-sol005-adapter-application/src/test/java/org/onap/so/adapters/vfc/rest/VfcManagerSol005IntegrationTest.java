@@ -53,6 +53,8 @@ import static org.junit.Assert.assertEquals;
         properties = {
                 "mso.msb-ip=localhost",
                 "mso.msb-port=" + VfcManagerSol005IntegrationTest.WIREMOCK_PORT,
+                "aai.username=aai@aai.onap.org",
+                "aai.password=demo123456!",
                 "mariaDB4j.port=" + VfcManagerSol005IntegrationTest.MARIADB_PORT,
                 "mariaDB4j.baseDir=/tmp/MariaDB4j-inttest",
                 "spring.datasource.jdbc-url=jdbc:mariadb://localhost:"
@@ -151,7 +153,7 @@ public class VfcManagerSol005IntegrationTest {
         assertEquals(201, response.getStatus());
 
         String expectedAuth =
-                "Basic " + Base64.getEncoder().encodeToString("AAI:AAI".getBytes());
+                "Basic " + Base64.getEncoder().encodeToString("aai@aai.onap.org:demo123456!".getBytes());
         verify(getRequestedFor(urlPathEqualTo("/api/aai-esr-server/v1/nfvos/" + NFVO_ID))
                 .withHeader("Authorization", equalTo(expectedAuth)));
 
